@@ -15,6 +15,8 @@ $(document).ready(function () {
   var nowHour24 = moment().format("H");
   var nowHour12 = moment().format("H");
   var test = false;
+  var saveImage = "https://www.freeiconspng.com/uploads/save-icon-3.png"
+
 
   if (test) {
     nowHour24 = 13;
@@ -43,14 +45,14 @@ $(document).ready(function () {
       .attr("hour-index", hour);
 
     //start of creating date column
-    var dateCol = $("<div class = col-md-2>")
+    var dateCol = $("<div class = col-md-1>")
       .addClass("hour")
-      .css("background-color", "teal")
+      .css("background-color", "transparent")
       .attr("data-name", "dynamicDateCol");
 
-    var dateColHour = $("<span>").attr("class", "time-block");
+    var dateColHour = $("<span>").attr("class", "description");
 
-    //  create correct hour display for date column
+    //  create correct hour display for date column /////////////////
     var hourDisplay = 0;
     var amPm = "";
     if (hour > 12) {
@@ -63,23 +65,25 @@ $(document).ready(function () {
     //adding corresponding hour text to column
     dateColHour.text(`${hourDisplay} ${amPm}`);
     dateCol.append(dateColHour);
-    // end of hour/date column
+    // end of hour/date column /////////////////
 
-    //create new the input content Column
-    var taskCol = $("<input type='text' class='col-md-8'>")
+    //create new the input content Column /////////////
+    var taskCol = $("<input type='text' class='col-md-10'>")
       .addClass("input-field")
       .attr("type", "text")
       .attr(`input-${index}`, hour);
 
     // accessing the local storage based on the hour index
     taskCol.val(taskArray[index]);
-    // end of text input column
+    // end of text input column////////
 
-    //Start of createing new save column
-    var saveCol = $("<button class = col-md-2>")
+    //Start of createing new save column ///////
+    var saveCol = $("<button class = col-md-1>")
       .css("background-color", "green")
+      .addClass("saveBtn", "saveBtn i:hover")
+      .attr("class", "far fa-save saveImage")
       .attr("data-id", index);
-    // end of save column create
+    // end of save column create/////
 
     // set row columns based on timeframe
     // updateColor(newRow, hour);
@@ -95,8 +99,9 @@ $(document).ready(function () {
   $(document).on("click", "button", function (event) {
     event.preventDefault();
     var index = $(this).attr("data-id");
-    var inputId = $(".input-field") + index;
-    var value = $(inputId).val(); 
+    var inputId = $(".input-field")[index];
+    var value = $(inputId).val();
+    console.log(inputId, 'inputID');  
     console.log(typeof value);
     taskArray[index] = value;
 
@@ -107,11 +112,11 @@ $(document).ready(function () {
   // function to update row color
   function changeRowColor(hourRow, hour) {
     if (hour < nowHour24) {
-      hourRow.addClass("past");
+      hourRow.attr("class", "past");
     } else if (hour > nowHour24) {
-      hourRow.addClass("present");
+      hourRow.attr("class", "present");
     } else {
-      hourRow.addClass("future");
+      hourRow.attr("class", "future");
     }
   }
 });
