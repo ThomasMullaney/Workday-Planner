@@ -1,23 +1,37 @@
 $(document).ready(function () {
+  
+    // displaying current date and time at top of page
+    var todayTime = $("#currentDay");
+    var todayDate = moment().format("LLLL");
+    var newDiv = $("<div>").text(todayDate);
+    $(newDiv).append(todayDate);
+  
+    var update = setInterval(function () {
+      date = moment(new Date());
+      todayTime.text(date.format("LLLL"));
+    });
+  
+    setInterval(update, 1000);
 
+  // alert to refresh page
   let time = moment().format("h:mm:ss");
   let timeSplit = time.split(":");
   let minutesToRefresh = 59 - parseInt(timeSplit[1]);
   let secondsToRefresh = 60 - parseInt(timeSplit[2]);
-  let hourRefresh = minutesToRefresh*60 + secondsToRefresh;
+  let hourRefresh = minutesToRefresh * 60 + secondsToRefresh;
   let secondsElapsed = 0;
-  let timeToStartReload = setInterval(function(){
-    secondsElapsed ++
-      if (secondsElapsed === hourRefresh) {
-        console.log(moment());
-        let isReloading = confirm ("An hour has passed, would you like to refresh and move on to the next task?");
-        if (isReloading) {
-          window.location.reload(true);
-        } else {
-          alert("Automatic refresh will no longer occur unless you manually reload the page.");
-        }
+  let timeToStartReload = setInterval(function() {
+    secondsElapsed++
+    if (secondsElapsed === hourRefresh) {
+      console.log(moment());
+      let isReloading = confirm("An hour has passed, would you like to refresh and move on to the next task?");
+      if (isReloading) {
+        window.location.reload(true);
+      } else {
+        alert("Automatic refresh will no longer occur unless you manually reload the page.");
       }
-  },1000);
+    }
+  }, 1000); 
 });
 
 // Element Names
@@ -28,32 +42,33 @@ let todayDateEl = $("#currentDay");
 todayDateEl.text(moment().format("dddd, MMMM Do"));
 
 // generate timeblocks
-let timeArr = ["9AM", "10AM", "11AM", "12PM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM", "7PM" ];
+let timeArr = ["9AM", "10AM", "11AM", "12PM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM", "7PM"];
 
-for (let i = 1; i < timeArr.length; i++){
+for (let i=1; i < timeArr.length; i++) {
   let newTimeBlockEl = $("#9AM").clone();
   newTimeBlockEl.attr("id", timeArr[i]);
   newTimeBlockEl.children(".row").attr("style", "white-space: pre-Wrap");
-  newTimeBlockEl.children(".row").children(".hour").text(timeArr[1]);
+  newTimeBlockEl.children(".row").children(".hour").text(timeArr[i]);
   newTimeBlockEl.appendTo(".container");
-}; 
+};
 
 // get local storage tasks and populate to array
 let savedTasks;
 let locationArr = [];
 
-function populateSavedTask() {
-  savedTasks = localStorage.getItem("SavedTasks");
-  locationArr=[];
+function populateSavedTasks() {
+  savedTasks = localStorage.getItem("savedTasks");
+  locationArr = [];
   if (savedTasks === null || savedTasks === "") {
     savedTasks = [];
   } else {
-    savedDayPlans = JSON.parse(savedDayPlans);
+    savedTasks = JSON.parse(savedTasks);
     for (i = 0; i < savedTasks.length; i++) {
       locationArr.push(savedTasks[i].time);
     }
   }
-  for (let i=0; i<locationArr.length; i++) {
+
+  for (let i = 0; i < locationArr.length; i++) {
     let timeBlockId = "#" + locationArr[i];
     let timeBlockEl = $(timeBlockId).children(".row").children("textarea");
     $(timeBlockId).children(".row").children("button").attr("data-event", "yes");
@@ -61,127 +76,134 @@ function populateSavedTask() {
   }
 }
 
-populateSavedTask();
+populateSavedTasks();
 
-//   // displaying current date and time at top of page
-//   var todayTime = $("#currentDay");
-//   var todayDate = moment().format("LLLL");
-//   var newDiv = $("<div>").text(todayDate);
-//   $(newDiv).append(todayDate);
+// clear local storage
+function clearLocaleStorage(){
+  savedTasks = [];
+  localStorage.setItem('savedTasks', savedTasks);
+}
 
-//   var update = setInterval(function () {
-//     date = moment(new Date());
-//     todayTime.text(date.format("LLLL"));
-//   });
+// save to local storage
+function saveTask(time, input) {
+  alert("Task has been saved.");
+  savedTasks.push({
+    "time": time,
+    "event": input
+  });
+  localStorage.setItem("savedTasks", JSON.stringify(savedTasks));
+}
 
-//   setInterval(update, 1000);
+function removeEvent(index)   {
+  locationArr.splice([index], 1);
+  savedTasks.splice([index], 1);
+}
 
-//   var nowHour24 = moment().format("H");
-//   var nowHour12 = moment().format("H");
-//   var test = false;
-//   var saveImage = "https://www.freeiconspng.com/uploads/save-icon-3.png"
+function clearEvent(isClear, index, location, buttonEl) {
+  if (isClear) {
+    alert("This task has been cleared.");
+    removeEvent(index);
+    buttonEl.attr("data-event", "none");
+    localStorage.setItem("savedTasks", JSON.stringify(savedTasks));
+  } else {
+    location.val(savedTasks[index].event);
+    alert("Event was not cleared");
+  }
+  console.log("The data-event is set to " + buttonEl.attr("data-event") + " at " + buttonEl.siblings("p").text());
+}
 
 
-//   if (test) {
-//     nowHour24 = 13;
-//     nowHour12 = 1;
-//   }
-//   // first action of page should be to pull any stored tasks from localStorage
-//   var savedTasks = JSON.parse(localStorage.getItem("savedTasks"));
-//   // if the stored task is not empty we pull them,  otherwise it will create blank array
-//   if (savedTasks !== null) {
-//     taskArray = savedTasks;
-//   } else {
-//     taskArray = new Array(9);
-//   }
+function changeEvent(time, index, location, buttonEl, eventInput, isPopulated) {
+  if (eventInput.trim() === "" && isPopulated === "yes") {
+    let isSaved = confirm("At "+time+": Would you like to clear the event '"+savedTasks[index].event+"' ?");
+    clearEvent(isSaved, index, location, buttonEl);
+  } else if (eventInput.trim() !== "" && isPopulated === "none") {
+    let isSaved = confirm("At "+time+": Would you like add the event '"+eventInput+"'?");
+    if (isSaved) {
+      saveTask(time, eventInput);
+    } else {
+      location.val("");
+    }
+  } else if (eventInput.trim() !== "" && isPopulated === "yes") {
+    if (savedTasks[index].event !== eventInput) {
+      let isSaved = confirm("At "+time+": Would you like to change the event from '"+savedTasks[index].event+"' to '"+eventInput+"'?");
+      if (isSaved) {
+        removeEvent(index);
+        saveTask(time, eventInput);
+      } else {
+        alert("Change was not saved.");
+        location.val(savedTasks[index].event);
+      }
+    }
+  }
+}
 
-//   // grab container class
-//   var taskContainer = $("#taskContainer");
-//   taskContainer.empty();
+$(".time-block").delegate("button", "click", function () {
+  event.preventDefault();
+  let eventInput = $(this).siblings("textarea").val();
+  let time = $(this).siblings("p").text();
+  let location = $(this).siblings('textarea');
+  let isPopulated = $(this).attr("data-event");
+  let index = locationArr.indexOf(time);
+  let buttonEl = $(this);
 
-//   // hour = 9am; if hour is less than 5pm then we loop. index must be -9 to start at 0
-//   for (var hour = 9; hour <= 17; hour++) {
-//     var index = hour - 9;
+  changeEvent(time, index, location, buttonEl, eventInput, isPopulated);
+  populateSavedTasks();
+});
 
-//     //creating new row components
-//     var newRow = $("<div>")
-//       .addClass("row text-center mx-auto", "time-block")
-//       .attr("hour-index", hour);
+// change colors
 
-//     //start of creating date column
-//     var dateCol = $("<div>")
-//       .addClass("col-md-1")
-//       .css("background-color", "transparent")
-//       .attr("data-name", "dynamicDateCol");
+// get current times
 
-//     var dateColHour = $("<span>").attr("class", "description");
+let timeOfDay = moment().format('hA');
 
-//     //  create correct hour display for date column /////////////////
-//     var hourDisplay = 0;
-//     var amPm = "";
-//     if (hour > 12) {
-//       hourDisplay = hour - 12;
-//       amPm = "pm";
-//     } else {
-//       hourDisplay = hour;
-//       amPm = "am";
-//     }
-//     //adding corresponding hour text to column
-//     dateColHour.text(`${hourDisplay} ${amPm}`);
-//     dateCol.append(dateColHour);
-//     // end of hour/date column /////////////////
+// select class and add past/present/future
+let allTimeBlocks = $('.time-block');
 
-//     //create new the input content Column /////////////
-//     var taskCol = $("<input type='text' class='col-md-5'>")
-//       .addClass("input-group-text")
-//       .attr("type", "text")
-//       .attr(`input-${index}`, hour);
+for (let i = 0; i < allTimeBlocks.length; i++) {
+  let timeBlock = $(allTimeBlocks[i]);
+  let timeBlockId = timeBlock.attr('id');
+  let timeBlockTextArea = timeBlock.children(".row").children("textarea");
+  if (timeBlockId === timeOfDay) {
+    timeBlockTextArea.addClass('present');
+  } else if (moment(timeBlockId, 'hA').isBefore()) {
+    timeBlockTextArea.addClass('past');
+  } else if (moment(timeBlockId, 'hA').isAfter()) {
+    timeBlockTextArea.addClass('future');
+  }
+}
 
-//     // accessing the local storage based on the hour index
-//     taskCol.val(taskArray[index]);
-//     // end of text input column////////
+// clear button event 
+$('#clear').on('click', function(){
+  if(confirm('Confirm you wish to clear all tasks?')){
+    clearLocaleStorage();
+    $('.time-block').find('textarea').val("");
+    $('.time-block').find('button').attr('data-event', 'none');
+    locationArr=[];
+  }
+})
 
-//     //Start of createing new save column ///////
-//     var saveCol = $("<button class= col-md-1>")
-//       .css("background-color", "green")
-//       .addClass("saveBtn", "saveBtn i:hover")
-//       .attr("class", "far fa-save saveImage")
-//       .attr("data-id", index);
-//     // end of save column create/////
+// Save all 
+$('#saveAll').on('click', function(){
+  for ( let i=0; i  < allTimeBlocks.length; i++) {
+    let timeBlock = $(allTimeBlocks[i]);
+    let time = timeBlock.attr('id');
+    let location = timeBlock.children('.row').children('textarea');
+    let buttonEl = timeBlock.children('.row').children('button');
+    let eventInput = location.val();
+    let isPopulated = buttonEl.attr('data-event');
+    let index = locationArr.indexOf(time);
 
-//     // set row columns based on timeframe
-//     // updateColor(newRow, hour);
-//     changeRowColor(newRow, hour);
-//     //append all 3 elements to our row
-//     newRow.append(dateCol, taskCol, saveCol);
-//     console.log(newRow);
-//     //append our completed row to our container
-//     taskContainer.append(newRow);
-//   }
+    changeEvent(time, index, location, buttonEl, eventInput, isPopulated);
+  }
+  populateSavedTasks();
+  alert('there are no unsaved changes');
+});
 
-//   // function to save input to local storage
-//   $(document).on("click", "button", function (event) {
-//     event.preventDefault();
-//     var index = $(this).attr("data-id");
-//     var inputId = $(".input-field")[index];
-//     var value = $(inputId).val();
-//     console.log(inputId, 'inputID');  
-//     console.log(typeof value);
-//     taskArray[index] = value;
 
-//     // $(`saveid-${index}`).removeClass("shadowPulse");
-//     localStorage.setItem("savedTasks", JSON.stringify(taskArray));
-//   });
 
-//   // function to update row color
-//   function changeRowColor(hourRow, hour) {
-//     if (hour < nowHour24) {
-//       hourRow.attr("class", "past");
-//     } else if (hour > nowHour24) {
-//       hourRow.attr("class", "present");
-//     } else {
-//       hourRow.attr("class", "future");
-//     }
-//   }
-// });
+  // var nowHour24 = moment().format("H");
+  // var nowHour12 = moment().format("H");
+  // var test = false;
+  // var saveImage = "https://www.freeiconspng.com/uploads/save-icon-3.png"
 
