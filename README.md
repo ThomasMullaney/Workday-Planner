@@ -25,7 +25,7 @@ This is a daily planner application.</p>
   </h4>
 </div>
 
-![Screenshot of application demo](img/Capture.png)
+![Screenshot of application demo](img/Capture.PNG)
 
 ## Description:
 ### A time managment daily planner application.
