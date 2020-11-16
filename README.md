@@ -19,7 +19,7 @@ This is a daily planner application.</p>
       Github Repository
     </a>
 <span> | </span>
-<a href=" https://thomasmullaney.github.io/Workday-Planner/">
+<a href="https://thomasmullaney.github.io/Workday-Planner/">
       Github Pages
     </a>
   </h4>
