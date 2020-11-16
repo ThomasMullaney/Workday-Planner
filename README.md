@@ -1,5 +1,5 @@
 # Workday-Planner
-[![Generic badge](https://img.shields.io/badge/<SUBJECT>-<STATUS>-<COLOR>.svg)](https://shields.io/)
+
 <div>
     <h4>
     </a>
@@ -44,6 +44,16 @@ This is a daily planner application.</p>
 
 ## Usage:
 ### App helps users manage their time more efficently. Save events into local storage by clicking the save icon for each corresponding hour. Saved events with persist through page refresh.
+
+## Technologies:
+
+<ul>
+<li>HTML, CSS, Bootstrap</li>
+<li>Javascript, jQuery, JSON</li>
+<li>Local Storage</li>
+<li>Moment.js</li>
+<li>Github</li>
+</ul>
 
 ## License:
 ### [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
